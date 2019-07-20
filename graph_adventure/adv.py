@@ -44,33 +44,33 @@ def bfs():
                 if maze[node][exits] == "?":
                     return path
                 else:
-                    copy_path = list(path)
+                    copy_path = path.copy()
                     copy_path.append(maze[node][exits])
                     queue.enqueue(copy_path)
     return None
 
 
-def dfs():
-    stack = Stack()
+# def dfs():
+#     stack = Stack()
 
-    stack.push([player.currentRoom.id])
+#     stack.push([player.currentRoom.id])
 
-    visited = set()
+#     visited = set()
 
-    while stack.size > 0:
-        path = stack.pop()
-        node = path[-1]
+#     while stack.size > 0:
+#         path = stack.pop()
+#         node = path[-1]
 
-        if node not in visited:
-            visited.add(node)
-            for exits in maze[node]:
-                if maze[node][exits] == '?':
-                    return path
-                else:
-                    copy_path = list(path)
-                    copy_path.append(maze[node][exits])
-                    stack.push(copy_path)
-    return None
+#         if node not in visited:
+#             visited.add(node)
+#             for exits in maze[node]:
+#                 if maze[node][exits] == '?':
+#                     return path
+#                 else:
+#                     copy_path = list(path)
+#                     copy_path.append(maze[node][exits])
+#                     stack.push(copy_path)
+#     return None
 
 
 def where_am_i(rooms):
@@ -93,8 +93,9 @@ location = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
 
 # while the length of our maze is less then the roomGraph
 while len(maze) < len(roomGraph):
-    # Get the current exits of the maz and room
+    # Get the current exits of the maze and room
     cur_exits = maze[player.currentRoom.id]
+    direct_path = player.currentRoom.getRoomInDirection
     # all new exits we find
     new_exits = []
     # for each direction in the current exited rooms
@@ -108,7 +109,7 @@ while len(maze) < len(roomGraph):
             # then the direction is empty or not explored
             direction = ''
             # if the direct path is a new exit at the end
-            if player.currentRoom.getRoomInDirection(new_exits[-1]):
+            if direct_path(new_exits[-1]):
                 # we will pop off this direction
                 direction = new_exits.pop()
                 # add the current room we are in to the previous room
@@ -117,16 +118,22 @@ while len(maze) < len(roomGraph):
             player.travel(direction)
             # Append this new direction to our path we traveled.
             traversalPath.append(direction)
-
+            # if the players current room is not in the maze path
             if player.currentRoom.id not in maze:
+                # create a new exit dictionary
                 exited = {}
-
+                # for each exit we find from the players current room
                 for exits in player.currentRoom.getExits():
+                    # Replace exits ? 
                     exited[exits] = "?"
+                ## now maze prev room: direction = players current room
                 maze[prev_room][direction] = player.currentRoom.id
+                ## the exited location and direction = players previous room
                 exited[location[direction]] = prev_room
+                ## assume that the exited room is players current room in the maze
                 maze[player.currentRoom.id] = exited
             else:
+                # the maze previous direction is still the players current room
                 maze[prev_room][direction] = player.currentRoom.id
     else:
             rooms = bfs()
